@@ -4,7 +4,14 @@ This plugin prepends just below the current note's YAML frontmatter a bulleted l
 
 Note, this plugin may be used with folder notes or regular notes. At the moment, there is no option to recursively list notes in subfolders.
 
-## Usage & Settings
+## Commands
+### "Create NoteList: Files"
+This command creates a bulleted list of all notes in the current note's parent folder. The list is sorted according to the settings.
+
+### "Create NoteList: Folders"
+This command creates a bulleted list of all folder notes in the current note's parent folder. The list is sorted according to the settings.
+
+## Settings
 #### "Sort Order"
 - Options: Ascending (A-Z) or Descending (Z-A)
 - This setting determines the order in which the notes are listed in the bulleted list.

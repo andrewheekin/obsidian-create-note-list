@@ -4,7 +4,7 @@ This plugin prepends just below the current note's YAML frontmatter a bulleted l
 
 Note, this plugin may be used with folder notes or regular notes. At the moment, there is no option to recursively list notes in subfolders.
 
-## Settings
+## Usage & Settings
 #### "Sort Order"
 Options: Ascending (A-Z) or Descending (Z-A). This setting determines the order in which the notes are listed in the bulleted list.
 
@@ -35,3 +35,7 @@ title: "README"
 - [[2024-04-04 Note 2]]
 - [[2024-04-03 Note 1]]
 ```
+
+
+## CHANGELOG
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes.

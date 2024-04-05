@@ -19,11 +19,11 @@ Note, this plugin may be used with folder notes or regular notes. At the moment,
 ### Example 1
 Example folder structure #1:
 ```
-- Roman Emperors
-  - Roman Emperors.md
-  - Augustus.md
-  - Julius Caesar.md
-  - Nero.md
+Roman Emperors
+├── Roman Emperors.md
+├── Augustus.md
+├── Julius Caesar.md
+└── Nero.md
 ```
 
 `Roman Emperors.md` after running "Create NoteList: Files" with the `Sort Order: Ascending (A-Z)` and `Date Formatted Notes Only: No`
@@ -41,13 +41,13 @@ title: "Roman Emperors"
 ### Example 2
 Example folder structure #2:
 ```
-- My Folder
-  - 2024-04-03 Note 1.md
-  - 2024-04-04 Note 2.md
-  - 2024-04-05 Note 3.md
-  - Note 4.md
-  - Note 5.md
-  - My Note.md
+My Folder
+├── 2024-04-03 Note 1.md
+├── 2024-04-04 Note 2.md
+├── 2024-04-05 Note 3.md
+├── Note 4.md
+├── Note 5.md
+└── My Note.md
 ```
 
 `My Note.md` after running "Create NoteList: Files" with `Sort Order: Descending (Z-A)` and `Date Formatted Notes Only: Yes`
@@ -64,14 +64,14 @@ title: "My Note"
 ### Example 3 (Folder Notes)
 Example folder structure #3 with "Folder Notes" (Notes in a folder with the same name as the note):
 ```
-- Roman Emperors
-  - Roman Emperors.md
-  - Augustus
-    - Augustus.md
-  - Julius Caesar
-    - Julius Caesar.md
-  - Nero
-    - Nero.md
+Roman Emperors
+├── Roman Emperors.md
+├── Augustus
+│   └── Augustus.md
+├── Julius Caesar
+│   └── Julius Caesar.md
+└── Nero
+    └── Nero.md
 ```
 
 `Roman Emperors.md` after running "Create NoteList: Folders" with `Sort Order: Ascending (A-Z)` and `Date Formatted Notes Only: No`

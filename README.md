@@ -1,6 +1,6 @@
 # Obsidian Create Note List Plugin
 
-This plugin prepends just below the current note's YAML frontmatter a bulleted list of all notes or folder notes contained within the current note's parent folder. This is useful for creating a table of contents or a list of related notes.
+This plugin prepends a bulleted list of all notes or folder notes contained within the current note's parent folder just below the current note's YAML frontmatter. This is useful for creating a table of contents or a list of related notes.
 
 Note, this plugin may be used with folder notes or regular notes. At the moment, there is no option to recursively list notes in subfolders.
 

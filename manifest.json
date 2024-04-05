@@ -1,0 +1,11 @@
+{
+	"id": "create-note-list",
+	"name": "Create NoteList",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Create a bulleted list (with links) of all notes in the current folder.",
+	"author": "Andrew Heekin",
+	"authorUrl": "https://andrewheekin.com/",
+	"fundingUrl": "https://andrewheekin.com/",
+	"isDesktopOnly": false
+}

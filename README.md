@@ -5,10 +5,10 @@ This plugin prepends a bulleted list of all notes (or folder notes) contained wi
 Note, this plugin may be used with folder notes or regular notes. At the moment, there is no option to recursively list notes in subfolders.
 
 ## Commands
-### "Create NoteList: Files"
+### "Create NoteList: List Files"
 This command creates a bulleted list of all notes in the current note's parent folder. The list is sorted according to the settings.
 
-### "Create NoteList: Folders"
+### "Create NoteList: List Folders"
 This command creates a bulleted list of all folder notes in the current note's parent folder. The list is sorted according to the settings.
 
 ## Settings
@@ -33,7 +33,7 @@ Roman Emperors
 └── Nero.md
 ```
 
-`Roman Emperors.md` after running "Create NoteList: Files" with the `Sort Order: Ascending (A-Z)` and `Date Formatted Notes Only: No`
+`Roman Emperors.md` after running "Create NoteList: List Files" with the `Sort Order: Ascending (A-Z)` and `Date Formatted Notes Only: No`
 ```markdown
 ---
 title: "Roman Emperors"
@@ -57,7 +57,7 @@ My Folder
 └── My Note.md
 ```
 
-`My Note.md` after running "Create NoteList: Files" with `Sort Order: Descending (Z-A)` and `Date Formatted Notes Only: Yes`
+`My Note.md` after running "Create NoteList: List Files" with `Sort Order: Descending (Z-A)` and `Date Formatted Notes Only: Yes`
 ```markdown
 ---
 title: "My Note"
@@ -81,7 +81,7 @@ Roman Emperors
     └── Nero.md
 ```
 
-`Roman Emperors.md` after running "Create NoteList: Folders" with `Sort Order: Ascending (A-Z)` and `Date Formatted Notes Only: No`
+`Roman Emperors.md` after running "Create NoteList: List Folders" with `Sort Order: Ascending (A-Z)` and `Date Formatted Notes Only: No`
 ```markdown
 ---
 title: "Roman Emperors"

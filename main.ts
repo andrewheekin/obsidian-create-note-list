@@ -17,8 +17,6 @@ const DEFAULT_SETTINGS: CreateNoteListPluginSettings = {
 	dateFormattedOnly: true,
 };
 
-const CONSOLE_LOGGING = false;
-
 export default class CreateNoteListPlugin extends Plugin {
 	settings: CreateNoteListPluginSettings;
 
@@ -27,22 +25,18 @@ export default class CreateNoteListPlugin extends Plugin {
 
 		this.addCommand({
 			id: "create-note-list-files",
-			name: "Create NoteList: Files",
+			name: "List Files",
 			callback: () => this.createNoteList("files"),
 		});
 
 		this.addCommand({
 			id: "create-note-list-folders",
-			name: "Create NoteList: Folders",
+			name: "List Folders",
 			callback: () => this.createNoteList("folders"),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new CreateNoteListSettingTab(this.app, this));
-	}
-
-	onunload() {
-		CONSOLE_LOGGING && console.log("Unloading Create NoteList plugin");
 	}
 
 	async loadSettings() {
@@ -60,8 +54,6 @@ export default class CreateNoteListPlugin extends Plugin {
 		const { vault } = this.app;
 		let content = await vault.read(file);
 
-		CONSOLE_LOGGING && console.log("Content:", content);
-
 		// Define a regex to find YAML frontmatter
 		const frontMatterRegex = /^---\s*\n[\s\S]*?\n---\s*\n/;
 		const match = content.match(frontMatterRegex);
@@ -74,13 +66,9 @@ export default class CreateNoteListPlugin extends Plugin {
 				listToInsert +
 				content.slice(indexAfterFrontMatter);
 
-			CONSOLE_LOGGING &&
-				console.log("Content after inserting list:", content);
 		} else {
 			// If no frontmatter, just prepend the list
 			content = listToInsert + content;
-
-			CONSOLE_LOGGING && console.log("no frontmatter", content);
 		}
 
 		await vault.modify(file, content);
@@ -90,8 +78,6 @@ export default class CreateNoteListPlugin extends Plugin {
 	async createNoteList(itemType: "files" | "folders") {
 		const { vault } = this.app;
 		const activeFile = this.app.workspace.getActiveFile();
-
-		CONSOLE_LOGGING && console.log("Active File:", activeFile);
 		// Check if there's an active file
 		if (!activeFile) {
 			new Notice("No active note.");
@@ -100,8 +86,6 @@ export default class CreateNoteListPlugin extends Plugin {
 
 		const basePath = activeFile.parent?.path;
 
-		CONSOLE_LOGGING && console.log("Base Path:", basePath);
-
 		if (!basePath) {
 			new Notice("Error accessing file system.");
 			return;
@@ -109,7 +93,6 @@ export default class CreateNoteListPlugin extends Plugin {
 
 		try {
 			const listedItems = await vault.adapter.list(basePath);
-			CONSOLE_LOGGING && console.log("ListedItems:", listedItems);
 
 			let items;
 			if (itemType === "files") {
@@ -125,11 +108,6 @@ export default class CreateNoteListPlugin extends Plugin {
 					item.slice(item.lastIndexOf("/") + 1, item.lastIndexOf("."))
 				);
 
-				CONSOLE_LOGGING &&
-					console.log(
-						"File items after stripping path and extension:",
-						items
-					);
 			} else if (itemType === "folders") {
 				if (!listedItems.folders.length) {
 					new Notice("No folders in this directory.");
@@ -143,8 +121,6 @@ export default class CreateNoteListPlugin extends Plugin {
 					item.slice(item.lastIndexOf("/") + 1)
 				);
 
-				CONSOLE_LOGGING &&
-					console.log("Folder items after stripping path:", items);
 			} else {
 				new Notice("Unknown item type.");
 				return;
@@ -153,11 +129,6 @@ export default class CreateNoteListPlugin extends Plugin {
 			if (this.settings.dateFormattedOnly) {
 				const datePattern = /^\d{4}-\d{2}-\d{2}/;
 				items = items.filter((item) => datePattern.test(item));
-				CONSOLE_LOGGING &&
-					console.log(
-						"Date pattern match set to true. Here are filteredItems after date pattern match:",
-						items
-					);
 			}
 
 			if (this.settings.sortOrder === "asc") {
@@ -166,13 +137,9 @@ export default class CreateNoteListPlugin extends Plugin {
 				items.sort().reverse();
 			}
 
-			CONSOLE_LOGGING && console.log("Sorted Items:", items);
-
 			// Prepare the list to be inserted
 			const listToInsert =
 				items.map((item) => `- [[${item}]]`).join("\n") + "\n\n\n";
-
-			CONSOLE_LOGGING && console.log("ListToInsert:", listToInsert);
 
 			// Append the list right below the YAML frontmatter
 			await this.appendListBelowFrontMatter(activeFile, listToInsert);

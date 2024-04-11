@@ -1,15 +1,24 @@
 import {
 	App,
 	TFile,
+	TFolder,
+	TAbstractFile,
 	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	Editor,
+	MarkdownView
 } from "obsidian";
 
 interface CreateNoteListPluginSettings {
 	sortOrder: "asc" | "desc";
 	dateFormattedOnly: boolean;
+}
+
+enum NOTE_LIST_TYPE {
+	FILES = "files",
+	FOLDERS = "folders",
 }
 
 const DEFAULT_SETTINGS: CreateNoteListPluginSettings = {
@@ -25,14 +34,14 @@ export default class CreateNoteListPlugin extends Plugin {
 
 		this.addCommand({
 			id: "create-note-list-files",
-			name: "List Files",
-			callback: () => this.createNoteList("files"),
+			name: "List files",
+			editorCallback: (editor: Editor, view: MarkdownView) => this.createNoteList(NOTE_LIST_TYPE.FILES, editor, view),
 		});
 
 		this.addCommand({
 			id: "create-note-list-folders",
-			name: "List Folders",
-			callback: () => this.createNoteList("folders"),
+			name: "List folders",
+			editorCallback: (editor: Editor, view: MarkdownView) => this.createNoteList(NOTE_LIST_TYPE.FOLDERS, editor, view),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -50,76 +59,37 @@ export default class CreateNoteListPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
-	async appendListBelowFrontMatter(file: TFile, listToInsert: string) {
-		const { vault } = this.app;
-		let content = await vault.read(file);
 
-		// Define a regex to find YAML frontmatter
-		const frontMatterRegex = /^---\s*\n[\s\S]*?\n---\s*\n/;
-		const match = content.match(frontMatterRegex);
-
-		if (match && match.index !== undefined) {
-			// If frontmatter is present, split the content and insert the list after the frontmatter
-			const indexAfterFrontMatter = match.index + match[0].length;
-			content =
-				content.slice(0, indexAfterFrontMatter) +
-				listToInsert +
-				content.slice(indexAfterFrontMatter);
-
-		} else {
-			// If no frontmatter, just prepend the list
-			content = listToInsert + content;
-		}
-
-		await vault.modify(file, content);
-		new Notice("List added to the note.");
-	}
-
-	async createNoteList(itemType: "files" | "folders") {
-		const { vault } = this.app;
-		const activeFile = this.app.workspace.getActiveFile();
-		// Check if there's an active file
-		if (!activeFile) {
-			new Notice("No active note.");
-			return;
-		}
-
-		const basePath = activeFile.parent?.path;
-
-		if (!basePath) {
-			new Notice("Error accessing file system.");
-			return;
-		}
+	async createNoteList(itemType: NOTE_LIST_TYPE, editor: Editor, view: MarkdownView) {		
 
 		try {
-			const listedItems = await vault.adapter.list(basePath);
+			const listedItems: TAbstractFile[] | undefined = view?.file?.parent?.children // TAbstractFile can be either a TFile or a TFolder
+
+			if (!listedItems) {
+				new Notice("No items in this directory.");
+				return;
+			}
 
 			let items;
-			if (itemType === "files") {
-				if (!listedItems.files.length) {
+			if (itemType === NOTE_LIST_TYPE.FILES) {
+				const filesInNoteParent = listedItems.filter((item) => item instanceof TFile);
+
+				if (filesInNoteParent.length === 0) {
 					new Notice("No files in this directory.");
 					return;
 				}
 
-				// Get all files in the directory. Strip the path from the file name and remove the file extension from the name
-				items = listedItems.files;
+				items = filesInNoteParent.map((item: TFile) => item.basename);
 
-				items = items.map((item) =>
-					item.slice(item.lastIndexOf("/") + 1, item.lastIndexOf("."))
-				);
+			} else if (itemType === NOTE_LIST_TYPE.FOLDERS) {
+				const foldersInNoteParent = listedItems.filter((item) => item instanceof TFolder);
 
-			} else if (itemType === "folders") {
-				if (!listedItems.folders.length) {
+				if (foldersInNoteParent.length === 0) {
 					new Notice("No folders in this directory.");
 					return;
 				}
 
-				// Get all folders in the directory. Strip the path from the folder name
-				items = listedItems.folders;
-
-				items = items.map((item) =>
-					item.slice(item.lastIndexOf("/") + 1)
-				);
+				items = foldersInNoteParent.map((item: TFolder) => item.name);
 
 			} else {
 				new Notice("Unknown item type.");
@@ -139,10 +109,15 @@ export default class CreateNoteListPlugin extends Plugin {
 
 			// Prepare the list to be inserted
 			const listToInsert =
-				items.map((item) => `- [[${item}]]`).join("\n") + "\n\n\n";
+				items.map((item) => `- [[${item}]]`).join("\n") + "\n\n";
 
-			// Append the list right below the YAML frontmatter
-			await this.appendListBelowFrontMatter(activeFile, listToInsert);
+			// Append the list at the cursor position
+			editor.replaceRange(
+				listToInsert,
+				editor.getCursor()
+			);
+
+			new Notice("Created list of notes.");
 		} catch (error) {
 			console.error("Error listing items: ", error);
 			new Notice("Error accessing file system.");
@@ -163,11 +138,9 @@ export class CreateNoteListSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl("h2", { text: "Create NoteList Settings" });
-
 		// Sort Order Setting
 		new Setting(containerEl)
-			.setName("Sort Order")
+			.setName("Sort order")
 			.setDesc("Choose the sort order for the note list")
 			.addDropdown((dropdown) =>
 				dropdown
@@ -182,7 +155,7 @@ export class CreateNoteListSettingTab extends PluginSettingTab {
 
 		// Date Formatted Only Setting
 		new Setting(containerEl)
-			.setName("Date Formatted Notes Only")
+			.setName("Date formatted notes only")
 			.setDesc(
 				"Include only notes that start with YYYY-MM-DD in the list"
 			)

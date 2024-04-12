@@ -144,8 +144,8 @@ export class CreateNoteListSettingTab extends PluginSettingTab {
 			.setDesc("Choose the sort order for the note list")
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOption("asc", "Ascending")
-					.addOption("desc", "Descending")
+					.addOption("asc", "Asc (A-Z, 0-9)")
+					.addOption("desc", "Desc (Z-A, 9-0)")
 					.setValue(this.plugin.settings.sortOrder)
 					.onChange(async (value: "asc" | "desc") => {
 						this.plugin.settings.sortOrder = value;

@@ -92,6 +92,9 @@ title: "Roman Emperors"
 - [[Nero]]
 ```
 
+## Pricing
+This plugin is provided to everyone for free, however if you would like to say thanks or help support continued development, feel free to support it through one of the following methods:
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="BuyMeACoffee" width="100">](https://www.buymeacoffee.com/drewheek)
 
 
 ## Changelog

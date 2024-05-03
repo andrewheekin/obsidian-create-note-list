@@ -11,6 +11,9 @@ This command creates a bulleted list of all notes in the current note's parent f
 ### "Create NoteList: List Folders"
 This command creates a bulleted list of all folder notes in the current note's parent folder. The list is sorted according to the settings.
 
+### "Create NoteList: List Files and Folders"
+This command creates a bulleted list of all notes and folder notes in the current note's parent folder. The list is sorted according to the settings.
+
 ## Settings
 #### "Sort Order"
 - Options: Ascending (A-Z) or Descending (Z-A)

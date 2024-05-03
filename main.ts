@@ -19,6 +19,7 @@ interface CreateNoteListPluginSettings {
 enum NOTE_LIST_TYPE {
 	FILES = "files",
 	FOLDERS = "folders",
+	BOTH = "both",
 }
 
 const DEFAULT_SETTINGS: CreateNoteListPluginSettings = {
@@ -44,6 +45,13 @@ export default class CreateNoteListPlugin extends Plugin {
 			name: "List folders",
 			editorCallback: (editor: Editor, view: MarkdownView) =>
 				this.createNoteList(NOTE_LIST_TYPE.FOLDERS, editor, view),
+		});
+
+		this.addCommand({
+			id: "create-note-list-files-folders",
+			name: "List files and folders",
+			editorCallback: (editor: Editor, view: MarkdownView) =>
+				this.createNoteList(NOTE_LIST_TYPE.BOTH, editor, view),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -99,6 +107,19 @@ export default class CreateNoteListPlugin extends Plugin {
 				}
 
 				items = foldersInNoteParent.map((item: TFolder) => item.name);
+			} else if (itemType === NOTE_LIST_TYPE.BOTH) {
+				const filesAndFoldersInNoteParent = listedItems.filter(
+					(item) => item instanceof TFile || item instanceof TFolder
+				);
+
+				if (filesAndFoldersInNoteParent.length === 0) {
+					new Notice("No files or folders in this directory.");
+					return;
+				}
+
+				items = filesAndFoldersInNoteParent.map((item: TAbstractFile) =>
+					item instanceof TFile ? item.basename : item.name
+				);
 			} else {
 				new Notice("Unknown item type.");
 				return;

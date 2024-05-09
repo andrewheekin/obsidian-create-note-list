@@ -14,6 +14,7 @@ import {
 interface CreateNoteListPluginSettings {
 	sortOrder: "asc" | "desc";
 	dateFormattedOnly: boolean;
+	includeFolderNote: boolean;
 }
 
 enum NOTE_LIST_TYPE {
@@ -25,6 +26,7 @@ enum NOTE_LIST_TYPE {
 const DEFAULT_SETTINGS: CreateNoteListPluginSettings = {
 	sortOrder: "desc",
 	dateFormattedOnly: true,
+	includeFolderNote: false,
 };
 
 export default class CreateNoteListPlugin extends Plugin {
@@ -59,25 +61,16 @@ export default class CreateNoteListPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
 
-	async createNoteList(
-		itemType: NOTE_LIST_TYPE,
-		editor: Editor,
-		view: MarkdownView
-	) {
+	async createNoteList(itemType: NOTE_LIST_TYPE, editor: Editor, view: MarkdownView) {
 		try {
-			const listedItems: TAbstractFile[] | undefined =
-				view?.file?.parent?.children; // TAbstractFile can be either a TFile or a TFolder
+			const listedItems: TAbstractFile[] | undefined = view?.file?.parent?.children; // TAbstractFile can be either a TFile or a TFolder
 
 			if (!listedItems) {
 				new Notice("No items in this directory.");
@@ -86,9 +79,7 @@ export default class CreateNoteListPlugin extends Plugin {
 
 			let items;
 			if (itemType === NOTE_LIST_TYPE.FILES) {
-				const filesInNoteParent = listedItems.filter(
-					(item) => item instanceof TFile
-				);
+				const filesInNoteParent = listedItems.filter((item) => item instanceof TFile);
 
 				if (filesInNoteParent.length === 0) {
 					new Notice("No files in this directory.");
@@ -97,9 +88,7 @@ export default class CreateNoteListPlugin extends Plugin {
 
 				items = filesInNoteParent.map((item: TFile) => item.basename);
 			} else if (itemType === NOTE_LIST_TYPE.FOLDERS) {
-				const foldersInNoteParent = listedItems.filter(
-					(item) => item instanceof TFolder
-				);
+				const foldersInNoteParent = listedItems.filter((item) => item instanceof TFolder);
 
 				if (foldersInNoteParent.length === 0) {
 					new Notice("No folders in this directory.");
@@ -125,6 +114,13 @@ export default class CreateNoteListPlugin extends Plugin {
 				return;
 			}
 
+			// Exclude the folder note from the list if the includeFolderNote setting is not enabled
+			if (this.settings.includeFolderNote === false) {
+				const folderName = view?.file?.parent?.name;
+				items = items.filter(item => !(item === folderName));
+			}
+
+
 			if (this.settings.dateFormattedOnly) {
 				const datePattern = /^\d{4}-\d{2}-\d{2}/;
 				items = items.filter((item) => datePattern.test(item));
@@ -137,8 +133,7 @@ export default class CreateNoteListPlugin extends Plugin {
 			}
 
 			// Prepare the list to be inserted
-			const listToInsert =
-				items.map((item) => `- [[${item}]]`).join("\n") + "\n\n";
+			const listToInsert = items.map((item) => `- [[${item}]]`).join("\n") + "\n\n";
 
 			// Append the list at the cursor position
 			editor.replaceRange(listToInsert, editor.getCursor());
@@ -182,16 +177,23 @@ export class CreateNoteListSettingTab extends PluginSettingTab {
 		// Date Formatted Only Setting
 		new Setting(containerEl)
 			.setName("Date formatted notes only")
-			.setDesc(
-				"Include only notes that start with YYYY-MM-DD in the list"
-			)
+			.setDesc("Include only notes that start with YYYY-MM-DD in the list")
 			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.dateFormattedOnly)
-					.onChange(async (value: boolean) => {
-						this.plugin.settings.dateFormattedOnly = value;
-						await this.plugin.saveSettings();
-					})
+				toggle.setValue(this.plugin.settings.dateFormattedOnly).onChange(async (value: boolean) => {
+					this.plugin.settings.dateFormattedOnly = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		// Include Folder Note Setting
+		new Setting(containerEl)
+			.setName("Include folder note in file list")
+			.setDesc("Include the folder note (note with same name as folder) in the file list")
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.includeFolderNote).onChange(async (value: boolean) => {
+					this.plugin.settings.includeFolderNote = value;
+					await this.plugin.saveSettings();
+				})
 			);
 
 		const div = containerEl.createEl("div", {
